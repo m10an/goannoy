@@ -10,3 +10,4 @@ typedef float GoFloat32;
 
 // slice
 typedef struct { void *ptr; GoInt len; GoInt cap; } GoSlice;
+typedef struct { GoFloat32 *ptr; GoInt len; GoInt cap; } GoFloat32Slice;

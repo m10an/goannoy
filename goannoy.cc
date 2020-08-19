@@ -33,7 +33,7 @@ extern "C" {
     delete ptr;
   }
 
-  void add_item(AnnoyI *ptr, GoInt item, GoSlice w) {
+  void add_item(AnnoyI *ptr, GoInt item, GoFloat32Slice w) {
     ptr->add_item(item, (GoFloat32 *)w.ptr);
   }
 
