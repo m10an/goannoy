@@ -1,5 +1,6 @@
 #include "annoylib.h"
 #include "kissrandom.h"
+#include "gotypes.h"
 
 using namespace Annoy;
 
@@ -32,8 +33,8 @@ extern "C" {
     delete ptr;
   }
 
-  void add_item(AnnoyI *ptr, int item, const float *w) {
-    ptr->add_item(item, w);
+  void add_item(AnnoyI *ptr, GoInt item, GoSlice w) {
+    ptr->add_item(item, (float *)w.ptr);
   }
 
   void build(AnnoyI *ptr, int q) {
