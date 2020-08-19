@@ -6,7 +6,7 @@ typedef int64_t GoInt;
 
 // float  <=> float32
 // double <=> float64
-typedef float GoFloat;
+typedef float GoFloat32;
 
 // slice
 typedef struct { void *ptr; GoInt len; GoInt cap; } GoSlice;
