@@ -125,8 +125,8 @@ extern "C" {
     ptr->get_item(item, v);
   }
 
-  bool on_disk_build(AnnoyI *ptr, const char *filename) {
-    return ptr->on_disk_build(filename);
+  bool on_disk_build(AnnoyI *ptr, const char *filename, char **error) {
+    return ptr->on_disk_build(filename, error);
   }
 
 }

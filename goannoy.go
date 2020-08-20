@@ -25,7 +25,7 @@ int get_nns_by_vector_with_dists(void *, const float *, int, int, int32_t *, flo
 int get_n_items(void *);
 void verbose(void *, bool);
 void get_item(void *, int, float *);
-bool on_disk_build(void *, const char *);
+bool on_disk_build(void *, const char *, char **);
 */
 import "C"
 import (
@@ -146,9 +146,13 @@ func (i *Index) GetItem(item int) []float32 {
 }
 
 func (i *Index) OnDiskBuild(filename string) {
+	errMsg := new(*C.char)
 	chars := C.CString(filename)
-	C.on_disk_build(i.self, chars)
-	C.free(unsafe.Pointer(chars))
+	defer C.free(unsafe.Pointer(chars))
+	if !bool(C.on_disk_build(i.self, chars, errMsg)) {
+		defer C.free(unsafe.Pointer(*errMsg))
+		panic(C.GoString(*errMsg))
+	}
 }
 
 func (i *Index) Verbose(v bool) {
