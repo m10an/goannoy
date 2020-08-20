@@ -57,11 +57,10 @@ func DeleteAnnoyIndex(i Index) {
 }
 
 func (i *Index) AddItem(item int, w []float32) {
-	cErrMsg := new(*C.char)
-	ok := bool(C.add_item(i.self, C.GoInt(item), (*C.float)(&w[0]), cErrMsg))
-	if !ok {
-		defer C.free(unsafe.Pointer(*cErrMsg))
-		panic(C.GoString(*cErrMsg))
+	errMsg := new(*C.char)
+	if !bool(C.add_item(i.self, C.GoInt(item), (*C.float)(&w[0]), errMsg)) {
+		defer C.free(unsafe.Pointer(*errMsg))
+		panic(C.GoString(*errMsg))
 	}
 }
 
