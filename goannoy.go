@@ -16,7 +16,7 @@ bool build(void *, int, char **);
 bool unbuild(void *, char **);
 bool save(void *, const char *, bool, char **);
 void unload(void *);
-bool load(void *, const char *, bool);
+bool load(void *, const char *, bool, char **);
 float get_distance(void *, int, int);
 int get_nns_by_item(void *, int, int, int, int32_t *);
 int get_nns_by_item_with_dists(void *, int, int, int, int32_t *, float *);
@@ -99,10 +99,14 @@ func (i *Index) Unload() {
 	C.unload(i.self)
 }
 
-func (i *Index) Load(filename string, prefault bool) bool {
+func (i *Index) Load(filename string, prefault bool) {
+	errMsg := new(*C.char)
 	chars := C.CString(filename)
 	defer C.free(unsafe.Pointer(chars))
-	return bool(C.load(i.self, chars, C.bool(prefault)))
+	if !bool(C.load(i.self, chars, C.bool(prefault), errMsg)) {
+		defer C.free(unsafe.Pointer(*errMsg))
+		panic(C.GoString(*errMsg))
+	}
 }
 
 func (i *Index) GetDistance(firstItem int, secondItem int) float32 {

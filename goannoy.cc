@@ -53,8 +53,8 @@ extern "C" {
     ptr->unload();
   }
 
-  bool load(AnnoyI *ptr, const char *filename, bool prefault) {
-    return ptr->load(filename, prefault);
+  bool load(AnnoyI *ptr, const char *filename, bool prefault, char **error) {
+    return ptr->load(filename, prefault, error);
   }
 
   float get_distance(AnnoyI *ptr, int i, int j) {

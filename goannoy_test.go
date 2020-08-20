@@ -33,9 +33,7 @@ func TestWrongUsage(t *testing.T) {
 	DeleteAnnoyIndex(index)
 
 	index = NewAnnoyIndexAngular(3)
-	if !index.Load("go_test.ann", false) {
-		t.Error("Failed to load file without prefault")
-	}
+	index.Load("go_test.ann", false)
 	assertPanic(t, func() { index.Unbuild() })
 	assertPanic(t, func() { index.AddItem(0, []float32{0, 0, 1}) })
 	assertPanic(t, func() { index.Build(10) })
@@ -55,10 +53,7 @@ func TestFileHandling(t *testing.T) {
 	index.Save("go_test.ann", false)
 	DeleteAnnoyIndex(index)
 	index = NewAnnoyIndexAngular(3)
-
-	if !index.Load("go_test.ann", false) {
-		t.Error("Failed to load file without prefault")
-	}
+	index.Load("go_test.ann", false)
 
 	if nLoaded := index.GetNItems(); nItems != nLoaded {
 		t.Errorf("Number of indexed items mismatch: expected %d, loaded %d", nItems, nLoaded)
@@ -72,9 +67,7 @@ func TestFileHandling(t *testing.T) {
 	DeleteAnnoyIndex(index)
 	index = NewAnnoyIndexAngular(3)
 
-	if !index.Load("go_test2.ann", false) {
-		t.Error("Failed to load file without prefault")
-	}
+	index.Load("go_test2.ann", false)
 
 	if err := os.Remove("go_test2.ann"); err != nil {
 		t.Error(err.Error())
@@ -84,9 +77,7 @@ func TestFileHandling(t *testing.T) {
 	DeleteAnnoyIndex(index)
 	index = NewAnnoyIndexAngular(3)
 
-	if !index.Load("go_test3.ann", true) {
-		t.Error("Failed to load file allowing prefault")
-	}
+	index.Load("go_test3.ann", true)
 
 	DeleteAnnoyIndex(index)
 
@@ -109,9 +100,7 @@ func TestOnDiskBuild(t *testing.T) {
 	index.Build(10)
 
 	index.Unload()
-	if !index.Load("go_test.ann", false) {
-		t.Error("Failed to load file")
-	}
+	index.Load("go_test.ann", false)
 
 	if !reflect.DeepEqual([]int32{2, 1, 0}, index.GetNnsByVector([]float32{3, 2, 1}, 3, -1)) {
 		t.Error("Wrong nns order!")
