@@ -25,7 +25,9 @@ void get_item(void *, int, float *);
 bool on_disk_build(void *, const char *);
 */
 import "C"
-import "unsafe"
+import (
+	"unsafe"
+)
 
 type Index struct {
 	self      unsafe.Pointer
@@ -90,7 +92,7 @@ func (i *Index) GetNnsByItem(item int, n int, kSearch int) []int32 {
 		C.int(item),
 		C.int(n),
 		C.int(kSearch),
-		(*C.int)(&result[0]),
+		(*C.GoInt32)(&result[0]),
 		nil)
 	return result[:found]
 }
@@ -102,7 +104,7 @@ func (i *Index) GetNnsByItemWithDistances(item int, n int, kSearch int) ([]int32
 		C.int(item),
 		C.int(n),
 		C.int(kSearch),
-		(*C.int)(&result[0]),
+		(*C.GoInt32)(&result[0]),
 		(*C.float)(&distances[0]))
 	return result[:found], distances[:found]
 }
@@ -113,7 +115,7 @@ func (i *Index) GetNnsByVector(w []float32, n int, kSearch int) []int32 {
 		(*C.float)(&w[0]),
 		C.int(n),
 		C.int(kSearch),
-		(*C.int)(&result[0]),
+		(*C.GoInt32)(&result[0]),
 		nil)
 	return result[:found]
 }
@@ -125,7 +127,7 @@ func (i *Index) GetNnsByVectorWithDistances(w []float32, n int, kSearch int) ([]
 		(*C.float)(&w[0]),
 		C.int(n),
 		C.int(kSearch),
-		(*C.int)(&result[0]),
+		(*C.GoInt32)(&result[0]),
 		(*C.float)(&distances[0]))
 	return result[:found], distances[:found]
 }
