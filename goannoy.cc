@@ -34,7 +34,7 @@ extern "C" {
   }
 
   void add_item(AnnoyI *ptr, GoInt item, GoFloat32Slice w) {
-    ptr->add_item(item, (GoFloat32 *)w.ptr);
+    ptr->add_item(item, w.ptr);
   }
 
   void build(AnnoyI *ptr, int q) {
