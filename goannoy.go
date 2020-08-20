@@ -6,12 +6,12 @@ package goannoy
 #include <stdint.h>
 #include "gotypes.h"
 
-void* create_annidx_angular(int);
-void* create_annidx_euclidean(int);
-void* create_annidx_manhattan(int);
-void* create_annidx_dot_product(int);
+void * create_annidx_angular(int);
+void * create_annidx_euclidean(int);
+void * create_annidx_manhattan(int);
+void * create_annidx_dot_product(int);
 void free_annidx(void *);
-void add_item(void *, intgo_t, float_slice_t);
+void add_item(void *, intgo_t, const float *);
 void build(void *, int);
 bool save(void *, const char *, bool);
 void unload(void *);
@@ -57,7 +57,7 @@ func DeleteAnnoyIndex(i Index) {
 }
 
 func (i *Index) AddItem(item int, w []float32) {
-	C.add_item(i.self, C.GoInt(item), *(*C.GoFloatSlice)(unsafe.Pointer(&w)))
+	C.add_item(i.self, C.GoInt(item), (*C.float)(&w[0]))
 }
 
 func (i *Index) GetNItems() int {
