@@ -10,6 +10,39 @@ import (
 
 const minDistanceDiff float64 = 1e-5
 
+func assertPanic(t *testing.T, shouldPanic func()) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("Expected panic")
+		}
+	}()
+	shouldPanic()
+}
+
+func TestWrongUsage(t *testing.T) {
+	index := NewAnnoyIndexAngular(3)
+
+	index.AddItem(0, []float32{0, 0, 1})
+	index.AddItem(1, []float32{0, 1, 0})
+	index.AddItem(2, []float32{1, 0, 0})
+
+	index.Build(10)
+	assertPanic(t, func() { index.Build(10) })
+
+	if !index.Save("go_test.ann", false) {
+		t.Error("Failed to create file without prefault")
+	}
+	DeleteAnnoyIndex(index)
+
+	index = NewAnnoyIndexAngular(3)
+	if !index.Load("go_test.ann", false) {
+		t.Error("Failed to load file without prefault")
+	}
+	assertPanic(t, func() { index.AddItem(0, []float32{0, 0, 1}) })
+	assertPanic(t, func() { index.Build(10) })
+
+}
+
 func TestFileHandling(t *testing.T) {
 	index := NewAnnoyIndexAngular(3)
 
