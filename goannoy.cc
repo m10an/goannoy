@@ -33,8 +33,8 @@ extern "C" {
     delete ptr;
   }
 
-  void add_item(AnnoyI *ptr, intgo_t item, const float *w) {
-    ptr->add_item(item, w);
+  bool add_item(AnnoyI *ptr, intgo_t item, const float *w, char **error) {
+    return ptr->add_item(item, w, error);
   }
 
   void build(AnnoyI *ptr, int q) {

@@ -11,7 +11,7 @@ void * create_annidx_euclidean(int);
 void * create_annidx_manhattan(int);
 void * create_annidx_dot_product(int);
 void free_annidx(void *);
-void add_item(void *, intgo_t, const float *);
+bool add_item(void *, intgo_t, const float *, char **);
 void build(void *, int);
 bool save(void *, const char *, bool);
 void unload(void *);
@@ -57,7 +57,12 @@ func DeleteAnnoyIndex(i Index) {
 }
 
 func (i *Index) AddItem(item int, w []float32) {
-	C.add_item(i.self, C.GoInt(item), (*C.float)(&w[0]))
+	cErrMsg := new(*C.char)
+	ok := bool(C.add_item(i.self, C.GoInt(item), (*C.float)(&w[0]), cErrMsg))
+	if !ok {
+		defer C.free(unsafe.Pointer(*cErrMsg))
+		panic(C.GoString(*cErrMsg))
+	}
 }
 
 func (i *Index) GetNItems() int {
