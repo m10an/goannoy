@@ -37,8 +37,8 @@ extern "C" {
     return ptr->add_item(item, w, error);
   }
 
-  void build(AnnoyI *ptr, int q) {
-    ptr->build(q, 1);
+  bool build(AnnoyI *ptr, int q, char **error) {
+    return ptr->build(q, 1, error);
   }
 
   bool save(AnnoyI *ptr, const char *filename, bool prefault) {

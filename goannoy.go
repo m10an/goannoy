@@ -12,7 +12,7 @@ void * create_annidx_manhattan(int);
 void * create_annidx_dot_product(int);
 void free_annidx(void *);
 bool add_item(void *, intgo_t, const float *, char **);
-void build(void *, int);
+bool build(void *, int, char **);
 bool save(void *, const char *, bool);
 void unload(void *);
 bool load(void *, const char *, bool);
@@ -69,7 +69,11 @@ func (i *Index) GetNItems() int {
 }
 
 func (i *Index) Build(nTrees int) {
-	C.build(i.self, C.int(nTrees))
+	errMsg := new(*C.char)
+	if !bool(C.build(i.self, C.int(nTrees), errMsg)) {
+		defer C.free(unsafe.Pointer(*errMsg))
+		panic(C.GoString(*errMsg))
+	}
 }
 
 func (i *Index) Save(filename string, prefault bool) bool {
