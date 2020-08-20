@@ -38,6 +38,7 @@ func TestWrongUsage(t *testing.T) {
 	if !index.Load("go_test.ann", false) {
 		t.Error("Failed to load file without prefault")
 	}
+	assertPanic(t, func() { index.Unbuild() })
 	assertPanic(t, func() { index.AddItem(0, []float32{0, 0, 1}) })
 	assertPanic(t, func() { index.Build(10) })
 
