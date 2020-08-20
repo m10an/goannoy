@@ -9,5 +9,6 @@ typedef int64_t GoInt;
 typedef float GoFloat32;
 
 // slice
-typedef struct { void *ptr; GoInt len; GoInt cap; } GoSlice;
-typedef struct { GoFloat32 *ptr; GoInt len; GoInt cap; } GoFloat32Slice;
+typedef const struct { void      *ptr; GoInt len; GoInt cap; } GoSlice;
+typedef const struct { GoFloat32 *ptr; GoInt len; GoInt cap; } GoFloat32Slice;
+typedef const struct { GoInt     *ptr; GoInt len; GoInt cap; } GoIntSlice;
