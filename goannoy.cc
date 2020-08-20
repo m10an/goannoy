@@ -57,28 +57,56 @@ extern "C" {
     return ptr->get_distance(i, j);
   }
 
-  int _results_to_arrays(vector<int32_t> *result_vec, vector<float> *distances_vec, int32_t *result, float *distances){
-    int size = result_vec->size();
-    for (int i = 0; i < size; ++i){
-      result[i] = (*result_vec)[i];
-      if (distances)
-        distances[i] = (*distances_vec)[i];
+  int _results_to_arrays(vector<int32_t> *rv, vector<float> *dv, int32_t *ra, float *da) {
+    int size = rv->size();
+    for (int i = 0; i < size; ++i) {
+      ra[i] = (*rv)[i];
+      da[i] = (*dv)[i];
     }
     return size;
   }
 
-  int get_nns_by_item(AnnoyI *ptr, int item, int n, int search_k, int32_t *result, float *distances) {
-    vector<int32_t> result_vec;
-    vector<float> distances_vec;
-    ptr->get_nns_by_item(item, n, search_k, &result_vec, distances ? &distances_vec : NULL);
-    return _results_to_arrays(&result_vec, &distances_vec, result, distances);
+  int _result_to_array(vector<int32_t> *rv, int32_t *ra) {
+    int size = rv->size();
+    for (int i = 0; i < size; ++i)
+      ra[i] = (*rv)[i];
+    return size;
   }
 
-  int get_nns_by_vector(AnnoyI *ptr, const float *w, int n, int search_k, int32_t *result, float *distances) {
-    vector<int32_t> result_vec;
-    vector<float> distances_vec;
-    ptr->get_nns_by_vector(w, n, search_k, &result_vec, distances ? &distances_vec : NULL);
-    return _results_to_arrays(&result_vec, &distances_vec, result, distances);
+  int get_nns_by_item(AnnoyI *ptr, int item, int n, int search_k, int32_t *result) {
+    vector<int32_t> *result_vec = new vector<int32_t>();
+    ptr->get_nns_by_item(item, n, search_k, result_vec, NULL);
+    int size = _result_to_array(result_vec, result);
+    delete result_vec;
+    return size;
+  }
+
+  int get_nns_by_item_with_dists(AnnoyI *ptr, int item, int n, int search_k, int32_t *result, float *distances) {
+    vector<int32_t>  *result_vec    = new vector<int32_t>();
+    vector<float>    *distances_vec = new vector<float>();
+    ptr->get_nns_by_item(item, n, search_k, result_vec, distances_vec);
+    int size = _results_to_arrays(result_vec, distances_vec, result, distances);
+    delete result_vec;
+    delete distances_vec;
+    return size;
+  }
+
+  int get_nns_by_vector(AnnoyI *ptr, const float *w, int n, int search_k, int32_t *result) {
+    vector<int32_t> *result_vec = new vector<int32_t>();
+    ptr->get_nns_by_vector(w, n, search_k, result_vec, NULL);
+    int size = _result_to_array(result_vec, result);
+    delete result_vec;
+    return size;
+  }
+
+  int get_nns_by_vector_with_dists(AnnoyI *ptr, const float *w, int n, int search_k, int32_t *result, float *distances) {
+    vector<int32_t>  *result_vec    = new vector<int32_t>();
+    vector<float>    *distances_vec = new vector<float>();
+    ptr->get_nns_by_vector(w, n, search_k, result_vec, distances_vec);
+    int size = _results_to_arrays(result_vec, distances_vec, result, distances);
+    delete result_vec;
+    delete distances_vec;
+    return size;
   }
 
   int get_n_items(AnnoyI *ptr) {

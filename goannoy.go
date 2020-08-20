@@ -17,8 +17,10 @@ bool save(void *, const char *, bool);
 void unload(void *);
 bool load(void *, const char *, bool);
 float get_distance(void *, int, int);
-int get_nns_by_item(void *, int, int, int, int32_t *, float *);
-int get_nns_by_vector(void *, const float *w, int, int, int32_t *, float *);
+int get_nns_by_item(void *, int, int, int, int32_t *);
+int get_nns_by_item_with_dists(void *, int, int, int, int32_t *, float *);
+int get_nns_by_vector(void *, const float *, int, int, int32_t *);
+int get_nns_by_vector_with_dists(void *, const float *, int, int, int32_t *, float *);
 int get_n_items(void *);
 void verbose(void *, bool);
 void get_item(void *, int, float *);
@@ -88,47 +90,27 @@ func (i *Index) GetDistance(firstItem int, secondItem int) float32 {
 
 func (i *Index) GetNnsByItem(item int, n int, kSearch int) []int32 {
 	result := make([]int32, n)
-	found := C.get_nns_by_item(i.self,
-		C.int(item),
-		C.int(n),
-		C.int(kSearch),
-		(*C.GoInt32)(&result[0]),
-		nil)
+	found := C.get_nns_by_item(i.self, C.int(item), C.int(n), C.int(kSearch), (*C.GoInt32)(&result[0]))
 	return result[:found]
 }
 
 func (i *Index) GetNnsByItemWithDistances(item int, n int, kSearch int) ([]int32, []float32) {
 	result := make([]int32, n)
 	distances := make([]float32, n)
-	found := C.get_nns_by_item(i.self,
-		C.int(item),
-		C.int(n),
-		C.int(kSearch),
-		(*C.GoInt32)(&result[0]),
-		(*C.float)(&distances[0]))
+	found := C.get_nns_by_item_with_dists(i.self, C.int(item), C.int(n), C.int(kSearch), (*C.GoInt32)(&result[0]), (*C.float)(&distances[0]))
 	return result[:found], distances[:found]
 }
 
 func (i *Index) GetNnsByVector(w []float32, n int, kSearch int) []int32 {
 	result := make([]int32, n)
-	found := C.get_nns_by_vector(i.self,
-		(*C.float)(&w[0]),
-		C.int(n),
-		C.int(kSearch),
-		(*C.GoInt32)(&result[0]),
-		nil)
+	found := C.get_nns_by_vector(i.self, (*C.float)(&w[0]), C.int(n), C.int(kSearch), (*C.GoInt32)(&result[0]))
 	return result[:found]
 }
 
 func (i *Index) GetNnsByVectorWithDistances(w []float32, n int, kSearch int) ([]int32, []float32) {
 	result := make([]int32, n)
 	distances := make([]float32, n)
-	found := C.get_nns_by_vector(i.self,
-		(*C.float)(&w[0]),
-		C.int(n),
-		C.int(kSearch),
-		(*C.GoInt32)(&result[0]),
-		(*C.float)(&distances[0]))
+	found := C.get_nns_by_vector_with_dists(i.self, (*C.float)(&w[0]), C.int(n), C.int(kSearch), (*C.GoInt32)(&result[0]), (*C.float)(&distances[0]))
 	return result[:found], distances[:found]
 }
 
