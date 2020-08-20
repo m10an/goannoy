@@ -41,12 +41,12 @@ extern "C" {
     return ptr->build(q, 1, error);
   }
 
-  bool unbuild(AnnoyI *ptr,  char **error) {
+  bool unbuild(AnnoyI *ptr, char **error) {
     return ptr->unbuild(error);
   }
 
-  bool save(AnnoyI *ptr, const char *filename, bool prefault) {
-    return ptr->save(filename, prefault);
+  bool save(AnnoyI *ptr, const char *filename, bool prefault, char **error) {
+    return ptr->save(filename, prefault, error);
   }
 
   void unload(AnnoyI *ptr) {

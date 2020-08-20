@@ -14,7 +14,7 @@ void free_annidx(void *);
 bool add_item(void *, intgo_t, const float *, char **);
 bool build(void *, int, char **);
 bool unbuild(void *, char **);
-bool save(void *, const char *, bool);
+bool save(void *, const char *, bool, char **);
 void unload(void *);
 bool load(void *, const char *, bool);
 float get_distance(void *, int, int);
@@ -85,10 +85,14 @@ func (i *Index) Unbuild() {
 	}
 }
 
-func (i *Index) Save(filename string, prefault bool) bool {
+func (i *Index) Save(filename string, prefault bool) {
+	errMsg := new(*C.char)
 	chars := C.CString(filename)
 	defer C.free(unsafe.Pointer(chars))
-	return bool(C.save(i.self, chars, C.bool(prefault)))
+	if !bool(C.save(i.self, chars, C.bool(prefault), errMsg)) {
+		defer C.free(unsafe.Pointer(*errMsg))
+		panic(C.GoString(*errMsg))
+	}
 }
 
 func (i *Index) Unload() {

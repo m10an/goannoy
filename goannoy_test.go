@@ -25,13 +25,11 @@ func TestWrongUsage(t *testing.T) {
 	index.AddItem(0, []float32{0, 0, 1})
 	index.AddItem(1, []float32{0, 1, 0})
 	index.AddItem(2, []float32{1, 0, 0})
+	assertPanic(t, func() { index.Save("go_test.ann", false) })
 
 	index.Build(10)
 	assertPanic(t, func() { index.Build(10) })
-
-	if !index.Save("go_test.ann", false) {
-		t.Error("Failed to create file without prefault")
-	}
+	index.Save("go_test.ann", false)
 	DeleteAnnoyIndex(index)
 
 	index = NewAnnoyIndexAngular(3)
@@ -54,10 +52,7 @@ func TestFileHandling(t *testing.T) {
 	index.Build(10)
 	nItems := index.GetNItems()
 
-	if !index.Save("go_test.ann", false) {
-		t.Error("Failed to create file without prefault")
-	}
-
+	index.Save("go_test.ann", false)
 	DeleteAnnoyIndex(index)
 	index = NewAnnoyIndexAngular(3)
 
@@ -73,10 +68,7 @@ func TestFileHandling(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	if !index.Save("go_test2.ann", false) {
-		t.Error("Failed to create file without prefault")
-	}
-
+	index.Save("go_test2.ann", false)
 	DeleteAnnoyIndex(index)
 	index = NewAnnoyIndexAngular(3)
 
@@ -88,10 +80,7 @@ func TestFileHandling(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	if !index.Save("go_test3.ann", true) {
-		t.Error("Failed to create file with prefault")
-	}
-
+	index.Save("go_test3.ann", true)
 	DeleteAnnoyIndex(index)
 	index = NewAnnoyIndexAngular(3)
 
