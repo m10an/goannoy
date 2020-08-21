@@ -38,6 +38,9 @@ func TestWrongUsage(t *testing.T) {
 	assertPanic(t, func() { index.AddItem(0, []float32{0, 0, 1}) })
 	assertPanic(t, func() { index.Build(10) })
 
+	if err := os.Remove("go_test.ann"); err != nil {
+		t.Error(err.Error())
+	}
 }
 
 func TestFileHandling(t *testing.T) {
