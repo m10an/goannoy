@@ -2,30 +2,51 @@ package goannoy
 
 // #include "goannoy.h"
 import "C"
-import "unsafe"
+import (
+	"goannoy/errors"
+	"runtime"
+	"unsafe"
+)
 
 type AnnoyIndex struct {
 	index     *C.AnnoyIndex
 	nFeatures int
 }
 
-func NewAnnoyIndexAngular(f int) *AnnoyIndex {
-	return &AnnoyIndex{C.CreateAnnoyIndexAngular(C.int(f)), f}
+type Distance int
+
+const (
+	Angular Distance = iota
+	Euclidean
+	Manhattan
+	DotProduct
+)
+
+func NewAnnoyIndex(d Distance, f int) (*AnnoyIndex, error) {
+	var a *AnnoyIndex
+
+	if f < 1 {
+		return nil, errors.ValueError("number of features must be natural")
+	}
+
+	switch d {
+	case Angular:
+		a = &AnnoyIndex{C.CreateAnnoyIndexAngular(C.int(f)), f}
+	case Euclidean:
+		a = &AnnoyIndex{C.CreateAnnoyIndexEuclidean(C.int(f)), f}
+	case Manhattan:
+		a = &AnnoyIndex{C.CreateAnnoyIndexManhattan(C.int(f)), f}
+	case DotProduct:
+		a = &AnnoyIndex{C.CreateAnnoyIndexDotProduct(C.int(f)), f}
+	default:
+		return nil, errors.ValueError("unknown distance metric")
+	}
+
+	runtime.SetFinalizer(a, deleteAnnoyIndex)
+	return a, nil
 }
 
-func NewAnnoyIndexEuclidean(f int) *AnnoyIndex {
-	return &AnnoyIndex{C.CreateAnnoyIndexEuclidean(C.int(f)), f}
-}
-
-func NewAnnoyIndexManhattan(f int) *AnnoyIndex {
-	return &AnnoyIndex{C.CreateAnnoyIndexManhattan(C.int(f)), f}
-}
-
-func NewAnnoyIndexDotProduct(f int) *AnnoyIndex {
-	return &AnnoyIndex{C.CreateAnnoyIndexDotProduct(C.int(f)), f}
-}
-
-func DeleteAnnoyIndex(a *AnnoyIndex) {
+func deleteAnnoyIndex(a *AnnoyIndex) {
 	C.DeleteAnnoyIndex(a.index)
 }
 

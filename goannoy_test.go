@@ -20,7 +20,7 @@ func assertPanic(t *testing.T, shouldPanic func()) {
 }
 
 func TestWrongUsage(t *testing.T) {
-	index := NewAnnoyIndexAngular(3)
+	index, _ := NewAnnoyIndex(Angular, 3)
 
 	index.AddItem(0, []float32{0, 0, 1})
 	index.AddItem(1, []float32{0, 1, 0})
@@ -30,9 +30,8 @@ func TestWrongUsage(t *testing.T) {
 	index.Build(10)
 	assertPanic(t, func() { index.Build(10) })
 	index.Save("go_test.ann", false)
-	DeleteAnnoyIndex(index)
 
-	index = NewAnnoyIndexAngular(3)
+	index, _ = NewAnnoyIndex(Angular, 3)
 	index.Load("go_test.ann", false)
 	assertPanic(t, func() { index.Unbuild() })
 	assertPanic(t, func() { index.AddItem(0, []float32{0, 0, 1}) })
@@ -44,7 +43,7 @@ func TestWrongUsage(t *testing.T) {
 }
 
 func TestFileHandling(t *testing.T) {
-	index := NewAnnoyIndexAngular(3)
+	index, _ := NewAnnoyIndex(Angular, 3)
 
 	index.AddItem(0, []float32{0, 0, 1})
 	index.AddItem(1, []float32{0, 1, 0})
@@ -54,8 +53,7 @@ func TestFileHandling(t *testing.T) {
 	nItems := index.GetNItems()
 
 	index.Save("go_test.ann", false)
-	DeleteAnnoyIndex(index)
-	index = NewAnnoyIndexAngular(3)
+	index, _ = NewAnnoyIndex(Angular, 3)
 	index.Load("go_test.ann", false)
 
 	if nLoaded := index.GetNItems(); nItems != nLoaded {
@@ -67,8 +65,7 @@ func TestFileHandling(t *testing.T) {
 	}
 
 	index.Save("go_test2.ann", false)
-	DeleteAnnoyIndex(index)
-	index = NewAnnoyIndexAngular(3)
+	index, _ = NewAnnoyIndex(Angular, 3)
 
 	index.Load("go_test2.ann", false)
 
@@ -77,12 +74,9 @@ func TestFileHandling(t *testing.T) {
 	}
 
 	index.Save("go_test3.ann", true)
-	DeleteAnnoyIndex(index)
-	index = NewAnnoyIndexAngular(3)
+	index, _ = NewAnnoyIndex(Angular, 3)
 
 	index.Load("go_test3.ann", true)
-
-	DeleteAnnoyIndex(index)
 
 	if err := os.Remove("go_test3.ann"); err != nil {
 		t.Error(err.Error())
@@ -90,7 +84,7 @@ func TestFileHandling(t *testing.T) {
 }
 
 func TestOnDiskBuild(t *testing.T) {
-	index := NewAnnoyIndexAngular(3)
+	index, _ := NewAnnoyIndex(Angular, 3)
 	index.OnDiskBuild("go_test.ann")
 
 	if _, err := os.Stat("go_test.ann"); err != nil {
@@ -117,15 +111,13 @@ func TestOnDiskBuild(t *testing.T) {
 		t.Error("Wrong nns order!")
 	}
 
-	DeleteAnnoyIndex(index)
-
 	if err := os.Remove("go_test.ann"); err != nil {
 		t.Error(err.Error())
 	}
 }
 
 func TestGetNnsByVector(t *testing.T) {
-	index := NewAnnoyIndexAngular(3)
+	index, _ := NewAnnoyIndex(Angular, 3)
 	index.AddItem(0, []float32{0, 0, 1})
 	index.AddItem(1, []float32{0, 1, 0})
 	index.AddItem(2, []float32{1, 0, 0})
@@ -142,12 +134,10 @@ func TestGetNnsByVector(t *testing.T) {
 	if !reflect.DeepEqual([]int32{2, 0, 1}, index.GetNNsByVector([]float32{2, 0, 1}, 3, -1)) {
 		t.Error("Wrong nns order!")
 	}
-
-	DeleteAnnoyIndex(index)
 }
 
 func TestGetNnsByItem(t *testing.T) {
-	index := NewAnnoyIndexAngular(3)
+	index, _ := NewAnnoyIndex(Angular, 3)
 	index.AddItem(0, []float32{2, 1, 0})
 	index.AddItem(1, []float32{1, 2, 0})
 	index.AddItem(2, []float32{0, 0, 1})
@@ -160,12 +150,10 @@ func TestGetNnsByItem(t *testing.T) {
 	if !reflect.DeepEqual([]int32{1, 0, 2}, index.GetNNsByItem(1, 3, -1)) {
 		t.Error("Wrong nns order!")
 	}
-
-	DeleteAnnoyIndex(index)
 }
 
 func TestGetItem(t *testing.T) {
-	index := NewAnnoyIndexAngular(3)
+	index, _ := NewAnnoyIndex(Angular, 3)
 	index.AddItem(0, []float32{2, 1, 0})
 	index.AddItem(1, []float32{1, 2, 0})
 	index.AddItem(2, []float32{0, 0, 1})
@@ -182,12 +170,10 @@ func TestGetItem(t *testing.T) {
 	if !reflect.DeepEqual([]float32{0, 0, 1}, index.GetItem(2)) {
 		t.Error("Wrong item got!")
 	}
-
-	DeleteAnnoyIndex(index)
 }
 
 func TestGetAngularDistance(t *testing.T) {
-	index := NewAnnoyIndexAngular(2)
+	index, _ := NewAnnoyIndex(Angular, 2)
 	index.AddItem(0, []float32{0, 1})
 	index.AddItem(1, []float32{1, 1})
 	index.Build(10)
@@ -197,11 +183,10 @@ func TestGetAngularDistance(t *testing.T) {
 	if diff := math.Abs(d1 - d2); diff > minDistanceDiff {
 		t.Errorf("%f - %f (= %f) > %e", d1, d2, diff, minDistanceDiff)
 	}
-	DeleteAnnoyIndex(index)
 }
 
 func TestGetManhattan(t *testing.T) {
-	index := NewAnnoyIndexManhattan(2)
+	index, _ := NewAnnoyIndex(Manhattan, 2)
 	index.AddItem(0, []float32{3, -1})
 	index.AddItem(1, []float32{1, 1})
 	index.Build(10)
@@ -211,11 +196,10 @@ func TestGetManhattan(t *testing.T) {
 	if diff := math.Abs(d1 - d2); diff > minDistanceDiff {
 		t.Errorf("%f - %f (= %f) > %e", d1, d2, diff, minDistanceDiff)
 	}
-	DeleteAnnoyIndex(index)
 }
 
 func TestGetDotProductDistance(t *testing.T) {
-	index := NewAnnoyIndexDotProduct(2)
+	index, _ := NewAnnoyIndex(DotProduct, 2)
 	index.AddItem(0, []float32{0, 1})
 	index.AddItem(1, []float32{1, 1})
 	index.Build(10)
@@ -225,11 +209,10 @@ func TestGetDotProductDistance(t *testing.T) {
 	if diff := math.Abs(d1 - d2); diff > minDistanceDiff {
 		t.Errorf("%f - %f (= %f) > %e", d1, d2, diff, minDistanceDiff)
 	}
-	DeleteAnnoyIndex(index)
 }
 
 func TestLargeEuclideanIndex(t *testing.T) {
-	index := NewAnnoyIndexEuclidean(10)
+	index, _ := NewAnnoyIndex(Euclidean, 10)
 
 	for j := 0; j < 10000; j += 2 {
 		p := make([]float32, 0, 10)
@@ -256,5 +239,4 @@ func TestLargeEuclideanIndex(t *testing.T) {
 			t.Error("Wrong nns order!")
 		}
 	}
-	DeleteAnnoyIndex(index)
 }
