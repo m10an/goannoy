@@ -2,31 +2,36 @@
 #include "kissrandom.h"
 #include "gotypes.h"
 
-using namespace Annoy;
-
 // Annoy Class
 template <class D>
-using AnnoyC = AnnoyIndex<int32_t, float, D, Kiss64Random, AnnoyIndexSingleThreadedBuildPolicy>;
+using AnnoyC = Annoy::AnnoyIndex<int32_t, float, D, Annoy::Kiss64Random, Annoy::AnnoyIndexSingleThreadedBuildPolicy>;
 
 // Annoy Interface
-using AnnoyI = AnnoyIndexInterface<int32_t, float>;
+using AnnoyI = Annoy::AnnoyIndexInterface<int32_t, float>;
+
+typedef struct AnnoyIndex {
+  AnnoyI* index;
+} AnnoyIndex;
 
 extern "C" {
-
-  AnnoyC<Angular>* create_annidx_angular(int f) {
-    return new AnnoyC<Angular>(f);
+  AnnoyIndex* create_annidx_angular_v2(int f) {
+    return new AnnoyIndex{new AnnoyC<Annoy::Angular>(f)};
   }
 
-  AnnoyC<Euclidean>* create_annidx_euclidean(int f) {
-    return new AnnoyC<Euclidean>(f);
+  AnnoyC<Annoy::Angular>* create_annidx_angular(int f) {
+    return new AnnoyC<Annoy::Angular>(f);
   }
 
-  AnnoyC<Manhattan>* create_annidx_manhattan(int f) {
-    return new AnnoyC<Manhattan>(f);
+  AnnoyC<Annoy::Euclidean>* create_annidx_euclidean(int f) {
+    return new AnnoyC<Annoy::Euclidean>(f);
   }
 
-  AnnoyC<DotProduct>* create_annidx_dot_product(int f) {
-    return new AnnoyC<DotProduct>(f);
+  AnnoyC<Annoy::Manhattan>* create_annidx_manhattan(int f) {
+    return new AnnoyC<Annoy::Manhattan>(f);
+  }
+
+  AnnoyC<Annoy::DotProduct>* create_annidx_dot_product(int f) {
+    return new AnnoyC<Annoy::DotProduct>(f);
   }
 
   void free_annidx(AnnoyI *ptr) {
@@ -61,7 +66,7 @@ extern "C" {
     return ptr->get_distance(i, j);
   }
 
-  int _results_to_arrays(vector<int32_t> *rv, vector<float> *dv, int32_t *ra, float *da) {
+  int _results_to_arrays(Annoy::vector<int32_t> *rv, Annoy::vector<float> *dv, int32_t *ra, float *da) {
     int size = rv->size();
     for (int i = 0; i < size; ++i) {
       ra[i] = (*rv)[i];
@@ -70,7 +75,7 @@ extern "C" {
     return size;
   }
 
-  int _result_to_array(vector<int32_t> *rv, int32_t *ra) {
+  int _result_to_array(Annoy::vector<int32_t> *rv, int32_t *ra) {
     int size = rv->size();
     for (int i = 0; i < size; ++i)
       ra[i] = (*rv)[i];
@@ -78,7 +83,7 @@ extern "C" {
   }
 
   int get_nns_by_item(AnnoyI *ptr, int item, int n, int search_k, int32_t *result) {
-    vector<int32_t> *result_vec = new vector<int32_t>();
+    Annoy::vector<int32_t> *result_vec = new Annoy::vector<int32_t>();
     ptr->get_nns_by_item(item, n, search_k, result_vec, NULL);
     int size = _result_to_array(result_vec, result);
     delete result_vec;
@@ -86,8 +91,8 @@ extern "C" {
   }
 
   int get_nns_by_item_with_dists(AnnoyI *ptr, int item, int n, int search_k, int32_t *result, float *distances) {
-    vector<int32_t>  *result_vec    = new vector<int32_t>();
-    vector<float>    *distances_vec = new vector<float>();
+    Annoy::vector<int32_t>  *result_vec    = new Annoy::vector<int32_t>();
+    Annoy::vector<float>    *distances_vec = new Annoy::vector<float>();
     ptr->get_nns_by_item(item, n, search_k, result_vec, distances_vec);
     int size = _results_to_arrays(result_vec, distances_vec, result, distances);
     delete result_vec;
@@ -96,7 +101,7 @@ extern "C" {
   }
 
   int get_nns_by_vector(AnnoyI *ptr, const float *w, int n, int search_k, int32_t *result) {
-    vector<int32_t> *result_vec = new vector<int32_t>();
+    Annoy::vector<int32_t> *result_vec = new Annoy::vector<int32_t>();
     ptr->get_nns_by_vector(w, n, search_k, result_vec, NULL);
     int size = _result_to_array(result_vec, result);
     delete result_vec;
@@ -104,8 +109,8 @@ extern "C" {
   }
 
   int get_nns_by_vector_with_dists(AnnoyI *ptr, const float *w, int n, int search_k, int32_t *result, float *distances) {
-    vector<int32_t>  *result_vec    = new vector<int32_t>();
-    vector<float>    *distances_vec = new vector<float>();
+    Annoy::vector<int32_t>  *result_vec    = new Annoy::vector<int32_t>();
+    Annoy::vector<float>    *distances_vec = new Annoy::vector<float>();
     ptr->get_nns_by_vector(w, n, search_k, result_vec, distances_vec);
     int size = _results_to_arrays(result_vec, distances_vec, result, distances);
     delete result_vec;
