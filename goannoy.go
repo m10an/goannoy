@@ -3,7 +3,7 @@ package goannoy
 // #include "goannoy.h"
 import "C"
 import (
-	"goannoy/errors"
+	"github.com/m10an/goannoy/errors"
 	"runtime"
 	"unsafe"
 )
