@@ -1,6 +1,6 @@
 #include "annoylib.h"
 #include "kissrandom.h"
-#include "gotypes.h"
+#include "goannoy.h"
 
 // Annoy Class
 template <class D>
@@ -14,59 +14,56 @@ typedef struct AnnoyIndex {
 } AnnoyIndex;
 
 extern "C" {
-  AnnoyIndex* create_annidx_angular_v2(int f) {
+  AnnoyIndex* CreateAnnoyIndexAngular(int f) {
     return new AnnoyIndex{new AnnoyC<Annoy::Angular>(f)};
   }
 
-  AnnoyC<Annoy::Angular>* create_annidx_angular(int f) {
-    return new AnnoyC<Annoy::Angular>(f);
+  AnnoyIndex* CreateAnnoyIndexEuclidean(int f) {
+    return new AnnoyIndex{new AnnoyC<Annoy::Euclidean>(f)};
   }
 
-  AnnoyC<Annoy::Euclidean>* create_annidx_euclidean(int f) {
-    return new AnnoyC<Annoy::Euclidean>(f);
+  AnnoyIndex* CreateAnnoyIndexManhattan(int f) {
+    return new AnnoyIndex{new AnnoyC<Annoy::Manhattan>(f)};
   }
 
-  AnnoyC<Annoy::Manhattan>* create_annidx_manhattan(int f) {
-    return new AnnoyC<Annoy::Manhattan>(f);
+  AnnoyIndex* CreateAnnoyIndexDotProduct(int f) {
+    return new AnnoyIndex{new AnnoyC<Annoy::DotProduct>(f)};
   }
 
-  AnnoyC<Annoy::DotProduct>* create_annidx_dot_product(int f) {
-    return new AnnoyC<Annoy::DotProduct>(f);
+  void DeleteAnnoyIndex(AnnoyIndex *a) {
+    a->index->unload();
+    delete a->index;
   }
 
-  void free_annidx(AnnoyI *ptr) {
-    delete ptr;
+  bool AddItem(AnnoyIndex *a, intgo_t item, const float *w, char **error) {
+    return a->index->add_item(item, w, error);
   }
 
-  bool add_item(AnnoyI *ptr, intgo_t item, const float *w, char **error) {
-    return ptr->add_item(item, w, error);
+  bool Build(AnnoyIndex *a, int q, char **error) {
+    return a->index->build(q, 1, error);
   }
 
-  bool build(AnnoyI *ptr, int q, char **error) {
-    return ptr->build(q, 1, error);
+  bool Unbuild(AnnoyIndex *a, char **error) {
+    return a->index->unbuild(error);
   }
 
-  bool unbuild(AnnoyI *ptr, char **error) {
-    return ptr->unbuild(error);
+  bool Save(AnnoyIndex *a, const char *filename, bool prefault, char **error) {
+    return a->index->save(filename, prefault, error);
   }
 
-  bool save(AnnoyI *ptr, const char *filename, bool prefault, char **error) {
-    return ptr->save(filename, prefault, error);
+  void Unload(AnnoyIndex *a) {
+    a->index->unload();
   }
 
-  void unload(AnnoyI *ptr) {
-    ptr->unload();
+  bool Load(AnnoyIndex *a, const char *filename, bool prefault, char **error) {
+    return a->index->load(filename, prefault, error);
   }
 
-  bool load(AnnoyI *ptr, const char *filename, bool prefault, char **error) {
-    return ptr->load(filename, prefault, error);
+  float GetDistance(AnnoyIndex *a, int i, int j) {
+    return a->index->get_distance(i, j);
   }
 
-  float get_distance(AnnoyI *ptr, int i, int j) {
-    return ptr->get_distance(i, j);
-  }
-
-  int _results_to_arrays(Annoy::vector<int32_t> *rv, Annoy::vector<float> *dv, int32_t *ra, float *da) {
+  int resultsToArrays(Annoy::vector<int32_t> *rv, Annoy::vector<float> *dv, int32_t *ra, float *da) {
     int size = rv->size();
     for (int i = 0; i < size; ++i) {
       ra[i] = (*rv)[i];
@@ -75,63 +72,63 @@ extern "C" {
     return size;
   }
 
-  int _result_to_array(Annoy::vector<int32_t> *rv, int32_t *ra) {
+  int resultToArray(Annoy::vector<int32_t> *rv, int32_t *ra) {
     int size = rv->size();
     for (int i = 0; i < size; ++i)
       ra[i] = (*rv)[i];
     return size;
   }
 
-  int get_nns_by_item(AnnoyI *ptr, int item, int n, int search_k, int32_t *result) {
+  int GetNNsByItem(AnnoyIndex *a, int item, int n, int search_k, int32_t *result) {
     Annoy::vector<int32_t> *result_vec = new Annoy::vector<int32_t>();
-    ptr->get_nns_by_item(item, n, search_k, result_vec, NULL);
-    int size = _result_to_array(result_vec, result);
+    a->index->get_nns_by_item(item, n, search_k, result_vec, NULL);
+    int size = resultToArray(result_vec, result);
     delete result_vec;
     return size;
   }
 
-  int get_nns_by_item_with_dists(AnnoyI *ptr, int item, int n, int search_k, int32_t *result, float *distances) {
+  int GetNNsByItemWithDistances(AnnoyIndex *a, int item, int n, int search_k, int32_t *result, float *distances) {
     Annoy::vector<int32_t>  *result_vec    = new Annoy::vector<int32_t>();
     Annoy::vector<float>    *distances_vec = new Annoy::vector<float>();
-    ptr->get_nns_by_item(item, n, search_k, result_vec, distances_vec);
-    int size = _results_to_arrays(result_vec, distances_vec, result, distances);
+    a->index->get_nns_by_item(item, n, search_k, result_vec, distances_vec);
+    int size = resultsToArrays(result_vec, distances_vec, result, distances);
     delete result_vec;
     delete distances_vec;
     return size;
   }
 
-  int get_nns_by_vector(AnnoyI *ptr, const float *w, int n, int search_k, int32_t *result) {
+  int GetNNsByVector(AnnoyIndex *a, const float *w, int n, int search_k, int32_t *result) {
     Annoy::vector<int32_t> *result_vec = new Annoy::vector<int32_t>();
-    ptr->get_nns_by_vector(w, n, search_k, result_vec, NULL);
-    int size = _result_to_array(result_vec, result);
+    a->index->get_nns_by_vector(w, n, search_k, result_vec, NULL);
+    int size = resultToArray(result_vec, result);
     delete result_vec;
     return size;
   }
 
-  int get_nns_by_vector_with_dists(AnnoyI *ptr, const float *w, int n, int search_k, int32_t *result, float *distances) {
+  int GetNNsByVectorWithDistances(AnnoyIndex *a, const float *w, int n, int search_k, int32_t *result, float *distances) {
     Annoy::vector<int32_t>  *result_vec    = new Annoy::vector<int32_t>();
     Annoy::vector<float>    *distances_vec = new Annoy::vector<float>();
-    ptr->get_nns_by_vector(w, n, search_k, result_vec, distances_vec);
-    int size = _results_to_arrays(result_vec, distances_vec, result, distances);
+    a->index->get_nns_by_vector(w, n, search_k, result_vec, distances_vec);
+    int size = resultsToArrays(result_vec, distances_vec, result, distances);
     delete result_vec;
     delete distances_vec;
     return size;
   }
 
-  int get_n_items(AnnoyI *ptr) {
-    return (int)ptr->get_n_items();
+  int GetNItems(AnnoyIndex *a) {
+    return (int)a->index->get_n_items();
   }
 
-  void verbose(AnnoyI *ptr, bool v) {
-    ptr->verbose(v);
+  void Verbose(AnnoyIndex *a, bool v) {
+    a->index->verbose(v);
   }
 
-  void get_item(AnnoyI *ptr, int item, float *v) {
-    ptr->get_item(item, v);
+  void GetItem(AnnoyIndex *a, int item, float *v) {
+    a->index->get_item(item, v);
   }
 
-  bool on_disk_build(AnnoyI *ptr, const char *filename, char **error) {
-    return ptr->on_disk_build(filename, error);
+  bool OnDiskBuild(AnnoyIndex *a, const char *filename, char **error) {
+    return a->index->on_disk_build(filename, error);
   }
 
 }

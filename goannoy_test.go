@@ -105,15 +105,15 @@ func TestOnDiskBuild(t *testing.T) {
 	index.Unload()
 	index.Load("go_test.ann", false)
 
-	if !reflect.DeepEqual([]int32{2, 1, 0}, index.GetNnsByVector([]float32{3, 2, 1}, 3, -1)) {
+	if !reflect.DeepEqual([]int32{2, 1, 0}, index.GetNNsByVector([]float32{3, 2, 1}, 3, -1)) {
 		t.Error("Wrong nns order!")
 	}
 
-	if !reflect.DeepEqual([]int32{0, 1, 2}, index.GetNnsByVector([]float32{1, 2, 3}, 3, -1)) {
+	if !reflect.DeepEqual([]int32{0, 1, 2}, index.GetNNsByVector([]float32{1, 2, 3}, 3, -1)) {
 		t.Error("Wrong nns order!")
 	}
 
-	if !reflect.DeepEqual([]int32{2, 0, 1}, index.GetNnsByVector([]float32{2, 0, 1}, 3, -1)) {
+	if !reflect.DeepEqual([]int32{2, 0, 1}, index.GetNNsByVector([]float32{2, 0, 1}, 3, -1)) {
 		t.Error("Wrong nns order!")
 	}
 
@@ -131,15 +131,15 @@ func TestGetNnsByVector(t *testing.T) {
 	index.AddItem(2, []float32{1, 0, 0})
 	index.Build(10)
 
-	if !reflect.DeepEqual([]int32{2, 1, 0}, index.GetNnsByVector([]float32{3, 2, 1}, 3, -1)) {
+	if !reflect.DeepEqual([]int32{2, 1, 0}, index.GetNNsByVector([]float32{3, 2, 1}, 3, -1)) {
 		t.Error("Wrong nns order!")
 	}
 
-	if !reflect.DeepEqual([]int32{0, 1, 2}, index.GetNnsByVector([]float32{1, 2, 3}, 3, -1)) {
+	if !reflect.DeepEqual([]int32{0, 1, 2}, index.GetNNsByVector([]float32{1, 2, 3}, 3, -1)) {
 		t.Error("Wrong nns order!")
 	}
 
-	if !reflect.DeepEqual([]int32{2, 0, 1}, index.GetNnsByVector([]float32{2, 0, 1}, 3, -1)) {
+	if !reflect.DeepEqual([]int32{2, 0, 1}, index.GetNNsByVector([]float32{2, 0, 1}, 3, -1)) {
 		t.Error("Wrong nns order!")
 	}
 
@@ -153,11 +153,11 @@ func TestGetNnsByItem(t *testing.T) {
 	index.AddItem(2, []float32{0, 0, 1})
 	index.Build(10)
 
-	if !reflect.DeepEqual([]int32{0, 1, 2}, index.GetNnsByItem(0, 3, -1)) {
+	if !reflect.DeepEqual([]int32{0, 1, 2}, index.GetNNsByItem(0, 3, -1)) {
 		t.Error("Wrong nns order!")
 	}
 
-	if !reflect.DeepEqual([]int32{1, 0, 2}, index.GetNnsByItem(1, 3, -1)) {
+	if !reflect.DeepEqual([]int32{1, 0, 2}, index.GetNNsByItem(1, 3, -1)) {
 		t.Error("Wrong nns order!")
 	}
 
@@ -249,10 +249,10 @@ func TestLargeEuclideanIndex(t *testing.T) {
 	}
 	index.Build(10)
 	for j := 0; j < 10000; j += 2 {
-		if !reflect.DeepEqual([]int32{int32(j), int32(j) + 1}, index.GetNnsByItem(j, 2, -1)) {
+		if !reflect.DeepEqual([]int32{int32(j), int32(j) + 1}, index.GetNNsByItem(j, 2, -1)) {
 			t.Error("Wrong nns order!")
 		}
-		if !reflect.DeepEqual([]int32{int32(j) + 1, int32(j)}, index.GetNnsByItem(j+1, 2, -1)) {
+		if !reflect.DeepEqual([]int32{int32(j) + 1, int32(j)}, index.GetNNsByItem(j+1, 2, -1)) {
 			t.Error("Wrong nns order!")
 		}
 	}
