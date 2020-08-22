@@ -7,7 +7,7 @@ import (
 )
 
 type Index struct {
-	self      unsafe.Pointer
+	c         unsafe.Pointer
 	nFeatures int
 }
 
@@ -27,108 +27,108 @@ func NewAnnoyIndexDotProduct(f int) Index {
 	return Index{C.create_annidx_dot_product(C.int(f)), f}
 }
 
-func DeleteAnnoyIndex(i Index) {
-	C.free_annidx(i.self)
+func DeleteAnnoyIndex(idx Index) {
+	C.free_annidx(idx.c)
 }
 
-func (i *Index) AddItem(item int, w []float32) {
+func (idx *Index) AddItem(item int, w []float32) {
 	errMsg := new(*C.char)
-	if !bool(C.add_item(i.self, C.GoInt(item), (*C.float)(&w[0]), errMsg)) {
+	if !bool(C.add_item(idx.c, C.GoInt(item), (*C.float)(&w[0]), errMsg)) {
 		defer C.free(unsafe.Pointer(*errMsg))
 		panic(C.GoString(*errMsg))
 	}
 }
 
-func (i *Index) GetNItems() int {
-	return int(C.get_n_items(i.self))
+func (idx *Index) GetNItems() int {
+	return int(C.get_n_items(idx.c))
 }
 
-func (i *Index) Build(nTrees int) {
+func (idx *Index) Build(nTrees int) {
 	errMsg := new(*C.char)
-	if !bool(C.build(i.self, C.int(nTrees), errMsg)) {
+	if !bool(C.build(idx.c, C.int(nTrees), errMsg)) {
 		defer C.free(unsafe.Pointer(*errMsg))
 		panic(C.GoString(*errMsg))
 	}
 }
 
-func (i *Index) Unbuild() {
+func (idx *Index) Unbuild() {
 	errMsg := new(*C.char)
-	if !bool(C.unbuild(i.self, errMsg)) {
+	if !bool(C.unbuild(idx.c, errMsg)) {
 		defer C.free(unsafe.Pointer(*errMsg))
 		panic(C.GoString(*errMsg))
 	}
 }
 
-func (i *Index) Save(filename string, prefault bool) {
-	errMsg := new(*C.char)
-	chars := C.CString(filename)
-	defer C.free(unsafe.Pointer(chars))
-	if !bool(C.save(i.self, chars, C.bool(prefault), errMsg)) {
-		defer C.free(unsafe.Pointer(*errMsg))
-		panic(C.GoString(*errMsg))
-	}
-}
-
-func (i *Index) Unload() {
-	C.unload(i.self)
-}
-
-func (i *Index) Load(filename string, prefault bool) {
+func (idx *Index) Save(filename string, prefault bool) {
 	errMsg := new(*C.char)
 	chars := C.CString(filename)
 	defer C.free(unsafe.Pointer(chars))
-	if !bool(C.load(i.self, chars, C.bool(prefault), errMsg)) {
+	if !bool(C.save(idx.c, chars, C.bool(prefault), errMsg)) {
 		defer C.free(unsafe.Pointer(*errMsg))
 		panic(C.GoString(*errMsg))
 	}
 }
 
-func (i *Index) GetDistance(firstItem int, secondItem int) float32 {
-	return float32(C.get_distance(i.self, C.int(firstItem), C.int(secondItem)))
+func (idx *Index) Unload() {
+	C.unload(idx.c)
 }
 
-func (i *Index) GetNnsByItem(item int, n int, kSearch int) []int32 {
+func (idx *Index) Load(filename string, prefault bool) {
+	errMsg := new(*C.char)
+	chars := C.CString(filename)
+	defer C.free(unsafe.Pointer(chars))
+	if !bool(C.load(idx.c, chars, C.bool(prefault), errMsg)) {
+		defer C.free(unsafe.Pointer(*errMsg))
+		panic(C.GoString(*errMsg))
+	}
+}
+
+func (idx *Index) GetDistance(i, j int) float32 {
+	return float32(C.get_distance(idx.c, C.int(i), C.int(j)))
+}
+
+func (idx *Index) GetNnsByItem(item, n, kSearch int) []int32 {
 	result := make([]int32, n)
-	found := C.get_nns_by_item(i.self, C.int(item), C.int(n), C.int(kSearch), (*C.GoInt32)(&result[0]))
+	found := C.get_nns_by_item(idx.c, C.int(item), C.int(n), C.int(kSearch), (*C.GoInt32)(&result[0]))
 	return result[:found]
 }
 
-func (i *Index) GetNnsByItemWithDistances(item int, n int, kSearch int) ([]int32, []float32) {
+func (idx *Index) GetNnsByItemWithDistances(item, n, kSearch int) ([]int32, []float32) {
 	result := make([]int32, n)
 	distances := make([]float32, n)
-	found := C.get_nns_by_item_with_dists(i.self, C.int(item), C.int(n), C.int(kSearch), (*C.GoInt32)(&result[0]), (*C.float)(&distances[0]))
+	found := C.get_nns_by_item_with_dists(idx.c, C.int(item), C.int(n), C.int(kSearch), (*C.GoInt32)(&result[0]), (*C.float)(&distances[0]))
 	return result[:found], distances[:found]
 }
 
-func (i *Index) GetNnsByVector(w []float32, n int, kSearch int) []int32 {
+func (idx *Index) GetNnsByVector(w []float32, n, kSearch int) []int32 {
 	result := make([]int32, n)
-	found := C.get_nns_by_vector(i.self, (*C.float)(&w[0]), C.int(n), C.int(kSearch), (*C.GoInt32)(&result[0]))
+	found := C.get_nns_by_vector(idx.c, (*C.float)(&w[0]), C.int(n), C.int(kSearch), (*C.GoInt32)(&result[0]))
 	return result[:found]
 }
 
-func (i *Index) GetNnsByVectorWithDistances(w []float32, n int, kSearch int) ([]int32, []float32) {
+func (idx *Index) GetNnsByVectorWithDistances(w []float32, n, kSearch int) ([]int32, []float32) {
 	result := make([]int32, n)
 	distances := make([]float32, n)
-	found := C.get_nns_by_vector_with_dists(i.self, (*C.float)(&w[0]), C.int(n), C.int(kSearch), (*C.GoInt32)(&result[0]), (*C.float)(&distances[0]))
+	found := C.get_nns_by_vector_with_dists(idx.c, (*C.float)(&w[0]), C.int(n), C.int(kSearch), (*C.GoInt32)(&result[0]), (*C.float)(&distances[0]))
 	return result[:found], distances[:found]
 }
 
-func (i *Index) GetItem(item int) []float32 {
-	vector := make([]float32, i.nFeatures)
-	C.get_item(i.self, C.int(item), (*C.float)(&vector[0]))
+func (idx *Index) GetItem(item int) []float32 {
+	vector := make([]float32, idx.nFeatures)
+	C.get_item(idx.c, C.int(item), (*C.float)(&vector[0]))
 	return vector
 }
 
-func (i *Index) OnDiskBuild(filename string) {
+func (idx *Index) OnDiskBuild(filename string) {
 	errMsg := new(*C.char)
 	chars := C.CString(filename)
 	defer C.free(unsafe.Pointer(chars))
-	if !bool(C.on_disk_build(i.self, chars, errMsg)) {
+	if !bool(C.on_disk_build(idx.c, chars, errMsg)) {
 		defer C.free(unsafe.Pointer(*errMsg))
 		panic(C.GoString(*errMsg))
 	}
 }
 
-func (i *Index) Verbose(v bool) {
-	C.verbose(i.self, C.bool(v))
+func (idx *Index) Verbose(v bool) {
+	C.verbose(idx.c, C.bool(v))
 }
